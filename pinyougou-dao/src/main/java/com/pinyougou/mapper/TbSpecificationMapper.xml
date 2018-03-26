@@ -97,9 +97,24 @@
     </if>
   </delete>
   <insert id="insert" parameterType="com.pinyougou.pojo.TbSpecification" >
+      /*keyProerty 返回自增id*/
+    <selectKey keyColumn="id" order="AFTER" resultType="long" keyProperty="id" >
+      SELECT last_insert_id()
+    </selectKey>
+
     insert into tb_specification (id, spec_name)
     values (#{id,jdbcType=BIGINT}, #{specName,jdbcType=VARCHAR})
   </insert>
+
+  <!--插入规格和规格详情-->
+  <!--<insert id="insert" parameterType="com.pinyougou.pojo.TbSpecification" >
+    <selectKey keyColumn="id" order="AFTER" resultType="long" >
+      SELECT last_insert_id() as id
+    </selectKey>
+
+    insert into tb_specification(id , spec_name) values (#{id,jdbcType=BIGINT} , #{spec_name,jdbcType=VARCHAR})
+  </insert>-->
+
   <insert id="insertSelective" parameterType="com.pinyougou.pojo.TbSpecification" >
     insert into tb_specification
     <trim prefix="(" suffix=")" suffixOverrides="," >
@@ -161,4 +176,10 @@
     set spec_name = #{specName,jdbcType=VARCHAR}
     where id = #{id,jdbcType=BIGINT}
   </update>
+
+
+    <select id="selectOptionList" resultType="java.util.Map">
+        select id,spec_name as text from tb_specification
+    </select>
+
 </mapper>

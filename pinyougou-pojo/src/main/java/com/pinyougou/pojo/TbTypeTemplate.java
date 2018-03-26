@@ -2,6 +2,10 @@ package com.pinyougou.pojo;
 
 import java.io.Serializable;
 
+/**
+ *  1是用于关联品牌与规格
+    2定义扩充属性
+ */
 public class TbTypeTemplate implements Serializable {
     private Long id;
 

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <script type="text/javascript"src="plugins/angularjs/angular.min.js"></script>
+
+    <script>
+        var app = angular.module('myApp',[]);
+
+        app.controller('myController',function($scope){
+            $scope.add=function(){
+                return parseInt($scope.x)+parseInt($scope.y);
+            }
+        });
+
+    </script>
+
+</head>
+<body ng-app="myApp" ,ng-controller="myController">
+    <table>
+        <tr>
+            <td>值</td>
+        </tr>
+        <tr>
+            <td></td>
+        </tr>
+
+    </table>
+
+    <input ng-model="x"> <br/>
+    <input ng-model="y">
+    {{add()}}
+
+
+
+</body>
+</html>
