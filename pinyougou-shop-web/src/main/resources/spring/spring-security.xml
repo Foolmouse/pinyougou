@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+             xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+             xmlns:beans="http://www.springframework.org/schema/beans"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://www.springframework.org/schema/beans
+             http://www.springframework.org/schema/beans/spring-beans.xsd
+             http://code.alibabatech.com/schema/dubbo
+            http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+            http://www.springframework.org/schema/security
+            http://www.springframework.org/schema/security/spring-security.xsd">
+
+    <!-- 以下页面不被拦截 -->
+    <http pattern="/shoplogin.html" security="none"></http>
+    <http pattern="/css/**" security="none"></http>
+    <http pattern="/img/**" security="none"></http>
+    <http pattern="/js/**" security="none"></http>
+    <http pattern="/plugins/**" security="none"></http>
+    <http pattern="/seller/add.do" security="none"></http>
+
+    <!-- 页面拦截规则 -->
+    <!--
+    配置说明：
+    always-use-default-target：指定了是否在身份验证通过后总是跳转到default-target-url属性指定的URL。
+    如果你在系统中使用了框架页，需要设置框架页的策略为SAMEORIGIN&ndash;&gt;-->
+    <!--
+    配置说明：
+    intercept-url表示拦截页面
+    /*  表示的是该目录下的资源，只包括本级目录不包括下级目录
+    /** 表示的是该目录以及该目录下所有级别子目录的资源
+    form-login为开启表单登陆
+    use-expressions为是否使用使用 Spring 表达式语言（SpEL），默认为true ,如果开启，则拦截的配置应该写成以下形式-->
+    <!-- 页面拦截规则 -->
+
+    <http use-expressions="false">
+        <intercept-url pattern="/**" access="ROLE_SELLER"/>
+        <form-login login-page="/shoplogin.html" default-target-url="/admin/index.html" authentication-failure-url="/shoplogin.html" always-use-default-target="true"/>
+        <csrf disabled="true"/>
+        <headers>
+            <frame-options policy="SAMEORIGIN"/>
+        </headers>
+        <logout/>
+    </http>
+
+
+    <!-- 认证管理器 -->
+    <authentication-manager>
+        <authentication-provider user-service-ref="userDetailService">
+    </authentication-provider>
+    </authentication-manager>
+
+    <dubbo:application name="pinyougou-shop-web"></dubbo:application>
+
+    <dubbo:registry protocol="zookeeper" address="192.168.25.133" port="2181"></dubbo:registry>
+    <!--引用服务 通过注解 @reference 扫描 即可引用 包含了组件扫描-->
+    <dubbo:annotation package="com.pinyougou"></dubbo:annotation>
+
+    <dubbo:reference interface="com.pinyougou.sellergoods.service.SellerService" id="sellerService"></dubbo:reference>
+
+
+    <beans:bean id="userDetailService" class="com.pinyougou.service.impl.UserDetailsServiceImpl">
+        <beans:property name="sellerService" ref="sellerService"></beans:property>
+    </beans:bean>
+
+
+
+</beans:beans>
