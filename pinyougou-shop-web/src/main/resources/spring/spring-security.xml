@@ -11,7 +11,7 @@
             http://www.springframework.org/schema/security/spring-security.xsd">
 
     <!-- 以下页面不被拦截 -->
-    <http pattern="/shoplogin.html" security="none"></http>
+    <http pattern="/*.html" security="none"></http>
     <http pattern="/css/**" security="none"></http>
     <http pattern="/img/**" security="none"></http>
     <http pattern="/js/**" security="none"></http>
@@ -46,7 +46,8 @@
     <!-- 认证管理器 -->
     <authentication-manager>
         <authentication-provider user-service-ref="userDetailService">
-    </authentication-provider>
+            <password-encoder ref="bcryptEncoder"/>
+        </authentication-provider>
     </authentication-manager>
 
     <dubbo:application name="pinyougou-shop-web"></dubbo:application>
@@ -57,11 +58,12 @@
 
     <dubbo:reference interface="com.pinyougou.sellergoods.service.SellerService" id="sellerService"></dubbo:reference>
 
-
     <beans:bean id="userDetailService" class="com.pinyougou.service.impl.UserDetailsServiceImpl">
         <beans:property name="sellerService" ref="sellerService"></beans:property>
     </beans:bean>
 
+    <!--加密配置-->
+    <beans:bean id="bcryptEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder"/>
 
 
 </beans:beans>

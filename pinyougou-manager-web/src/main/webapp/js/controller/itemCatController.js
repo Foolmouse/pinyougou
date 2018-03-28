@@ -37,7 +37,16 @@ app.controller('itemCatController' ,function($scope,$controller   ,itemCatServic
 		if($scope.entity.id!=null){//如果有ID
 			serviceObject=itemCatService.update( $scope.entity ); //修改  
 		}else{
-			serviceObject=itemCatService.add( $scope.entity  );//增加 
+		    if($scope.grade==1){
+		        $scope.entity.parentId = 0;
+            }
+            if($scope.grade==2){
+		        $scope.entity.parentId = $scope.entity_1.id;
+            }
+            if($scope.grade==3){
+		        $scope.entity.parentId = $scope.entity_2.id;
+            }
+			serviceObject=itemCatService.add( $scope.entity  );//增加
 		}				
 		serviceObject.success(
 			function(response){
@@ -84,5 +93,34 @@ app.controller('itemCatController' ,function($scope,$controller   ,itemCatServic
                 $scope.list=response;
             }
         );
+    }
+
+    //面包屑导航
+    $scope.grade=1;//默认为1级
+    //设置级别
+    $scope.setGrade=function(value){
+        $scope.grade=value;
+    }
+
+    //读取列表
+    /*
+    进入页面初始化grade为1
+    点击下一级 , grade+1 , 查询种类下的商品 , 同时将自身作为第二级目录显示在面包屑
+    点击第二级面包屑目录, 重置grade , 并查询目录下商品
+    so easy.
+     */
+    $scope.selectList=function(p_entity){
+        if($scope.grade==1){//如果为1级
+            $scope.entity_1=null;
+            $scope.entity_2=null;
+        }
+        if($scope.grade==2){//如果为2级
+            $scope.entity_1=p_entity;
+            $scope.entity_2=null;
+        }
+        if($scope.grade==3){//如果为3级
+            $scope.entity_2=p_entity;
+        }
+        $scope.findByParentId(p_entity.id);	//查询此级下级列表
     }
 });	

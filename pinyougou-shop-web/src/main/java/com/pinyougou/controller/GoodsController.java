@@ -1,17 +1,18 @@
-package com.pinyougou.manager.controller;
-import java.util.List;
+package com.pinyougou.controller;
 
+import com.alibaba.dubbo.config.annotation.Reference;
+import com.pinyougou.pojo.TbGoods;
 import com.pinyougou.sellergoods.service.GoodsService;
 import entity.Goods;
+import entity.PageResult;
+import entity.Result;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import com.alibaba.dubbo.config.annotation.Reference;
-import com.pinyougou.pojo.TbGoods;
 
-import entity.PageResult;
-import entity.Result;
+import java.util.List;
+
 /**
  * controller
  * @author Administrator
@@ -43,22 +44,22 @@ public class GoodsController {
 		return goodsService.findPage(page, rows);
 	}
 	
-	/**
-	 * 增加
-	 * @param goods
-	 * @return
-	 */
-	@RequestMapping("/add")
-	public Result add(@RequestBody TbGoods goods){
-		try {
-			goodsService.add(goods);
-			return new Result(true, "增加成功");
-		} catch (Exception e) {
-			e.printStackTrace();
-			return new Result(false, "增加失败");
-		}
-	}
-	
+//	/**
+//	 * 增加
+//	 * @param goods
+//	 * @return
+//	 */
+//	@RequestMapping("/add")
+//	public Result add(@RequestBody TbGoods goods){
+//		try {
+//			goodsService.add(goods);
+//			return new Result(true, "增加成功");
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			return new Result(false, "增加失败");
+//		}
+//	}
+//
 	/**
 	 * 修改
 	 * @param goods
@@ -115,6 +116,20 @@ public class GoodsController {
 
 
 
+	@RequestMapping("add")
+	public Result add(@RequestBody Goods goods) {
+		//获取登录名
+		String name = SecurityContextHolder.getContext().getAuthentication().getName();
+		goods.getGoods().setSellerId(name);
 
+		try {
+			goodsService.add(goods);
+			return new Result(true, "新增成功");
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new Result(false, "增加失败");
+		}
+
+	}
 	
 }

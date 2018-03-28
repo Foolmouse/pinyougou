@@ -20,8 +20,6 @@ import java.util.ArrayList;
  * @author Administrator
  *
  */
-
-
 public class UserDetailsServiceImpl implements UserDetailsService {
 
     private SellerService sellerService;
@@ -33,19 +31,16 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String seller_id) throws UsernameNotFoundException {
         System.out.println("经过了UserDetailsServiceImpl");
-
         System.out.println(sellerService);
-        ArrayList<GrantedAuthority> grantAuths = new ArrayList<>();
-        grantAuths.add(new SimpleGrantedAuthority("ROLE_SELLER"));
-
-       //return new User(seller_id , "123456" , grantAuths);
-
         //数据库验证
         TbSeller tbSeller = sellerService.findOne(seller_id);
         if(tbSeller!=null){
-
             // 1? 表示审核通过
             if(tbSeller.getStatus().equals("1")){
+                ArrayList<GrantedAuthority> grantAuths = new ArrayList<>();
+                grantAuths.add(new SimpleGrantedAuthority("ROLE_SELLER"));
+
+                //security会自动封装了加了密的密码在seller中
                 return new User(seller_id,tbSeller.getPassword(),grantAuths);
             }else{
                 return null;
