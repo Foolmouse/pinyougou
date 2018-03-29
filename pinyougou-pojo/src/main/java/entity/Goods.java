@@ -7,6 +7,10 @@ import com.pinyougou.pojo.TbItem;
 import java.io.Serializable;
 import java.util.List;
 
+/**
+ * 这是一个BO对象
+ * 实现业务
+ */
 public class Goods implements Serializable {
     private TbGoods goods;//商品SPU
     private TbGoodsDesc goodsDesc;//商品扩展

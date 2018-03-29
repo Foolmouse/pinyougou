@@ -93,15 +93,37 @@ app.controller('goodsController' ,function($scope,$controller,goodsService,uploa
                 }
             }
         );
+
+       /* var serviceObject;//服务层对象
+        $scope.entity.goodsDesc.introduction=editor.html();
+
+        serviceObject = goodsService.add( $scope.entity  );//增加
+        serviceObject.success(
+            function(response){
+                if(response.success){
+                    //重新查询
+                    $scope.entity={};//重新加载
+                    editor.html('');//清空
+                }else{
+                    alert(response.message);
+                }
+            }
+        );*/
+
     }
 
     /**
      * 上传图片
      */
+
+    //初始化对象
+    $scope.entity={goods:{},goodsDesc:{itemImages:[]}};
+
     $scope.uploadFile=function(){
         uploadService.uploadFile().success(function(response) {
             if(response.success){//如果上传成功，取出url
                 $scope.image_entity.url=response.message;//设置文件地址
+
             }else{
                 alert(response.message);
             }
@@ -110,6 +132,14 @@ app.controller('goodsController' ,function($scope,$controller,goodsService,uploa
         });
     };
 
+    //点保存照片就加入到集合
+    $scope.add_image_entity=function () {
+        //加入照片集合
+        $scope.entity.goodsDesc.itemImages.push($scope.image_entity);
+    }
 
-
+    //列表中移除图片
+    $scope.remove_image_entity=function(index){
+        $scope.entity.goodsDesc.itemImages.splice(index,1);
+    }
 });	
