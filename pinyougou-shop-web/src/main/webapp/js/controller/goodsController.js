@@ -1,5 +1,6 @@
  //控制层 
-app.controller('goodsController' ,function($scope,$controller,goodsService,uploadService){
+app.controller('goodsController' ,function($scope,$controller,goodsService,
+                                           uploadService,itemCatService,typeTemplateService){
 	
 	$controller('baseController',{$scope:$scope});//继承
 	
@@ -142,4 +143,147 @@ app.controller('goodsController' ,function($scope,$controller,goodsService,uploa
     $scope.remove_image_entity=function(index){
         $scope.entity.goodsDesc.itemImages.splice(index,1);
     }
-});	
+
+    //加载一级分类目录
+    $scope.selectItemCat1List=function(){
+        itemCatService.findByParentId(0).success(
+            function(response){
+                $scope.itemCat1List = response;
+            }
+        )
+    }
+
+    //监听一级目录的更改 $watch方法用于监控某个变量的值，当被监控的值发生变化，就自动执行相应的函数。
+    $scope.$watch("entity.goods.category1Id",function (newValue,oldValue) {
+        // 清空下级目录
+        $scope.itemCat3List = {};
+        itemCatService.findByParentId(newValue).success(
+            function (response) {
+                $scope.itemCat2List = response;
+            }
+        )
+    })
+
+    //监听二级目录的更改
+    $scope.$watch("entity.goods.category2Id",function (newValue,oldValue) {
+        itemCatService.findByParentId(newValue).success(
+            function (response) {
+                $scope.itemCat3List = response;
+            }
+        )
+    })
+
+    //监听三级目录的更改
+    $scope.$watch("entity.goods.category3Id",function (newValue,oldValue) {
+
+        itemCatService.findOne(newValue).success(
+            function (response) {
+                $scope.entity.goods.typeTemplateId = response.typeId;
+            }
+        )
+    })
+
+    //监听模板ID的改变
+    $scope.$watch("entity.goods.typeTemplateId",function (newValue,oldValue) {
+        typeTemplateService.findOne(newValue).success(
+            function (response) {
+                $scope.typeTemplate = response;
+                //品牌
+                $scope.typeTemplate.brandIds = JSON.parse(response.brandIds);
+                //扩展属性
+                $scope.entity.goodsDesc.customAttributeItems=JSON.parse(response.customAttributeItems);
+
+            }
+        )
+        typeTemplateService.findSpecList(newValue).success(
+            function (response) {
+                $scope.specList=response;
+            }
+        )
+    })
+
+    /**
+     * 如果有就返回对象, 没有就返回null
+     * @param list 集合
+     * [{"attributeName":xxxx,"attributeValue":[]}]
+     * @param key key
+     * @param keyValue value
+     */
+    //从集合中按照key查询对象
+    $scope.searchObjectByKey=function(list,key,keyValue){
+        for(var i=0;i<list.length;i++){
+            if(list[i][key]==keyValue){
+                return list[i];
+            }
+        }
+        return null;
+    }
+
+    $scope.entity={ goodsDesc:{itemImages:[],specificationItems:[]}};
+    
+    $scope.updateSpecAttribute=function ($event,name,value) {
+        //[{"attributeName":xxxx,"attributeValue":[]}]
+        var obj = $scope.searchObjectByKey($scope.entity.goodsDesc.specificationItems ,'attributeName', name);
+        if(obj != null){
+            if($event.target.checked){
+                //选中勾选,加入集合
+                obj.attributeValue.push(value);
+            }else{
+                //取消勾选,移出集合
+                obj.attributeValue.splice(obj.attributeValue.indexOf(value),1);
+                //如果选项都取消了，将此条记录移除
+                if(obj.attributeValue.length==0){
+                    $scope.entity.goodsDesc.specificationItems.splice(
+                        $scope.entity.goodsDesc.specificationItems.indexOf(obj),1);
+                }
+            }
+        }else{
+            //之前不存在
+            $scope.entity.goodsDesc.specificationItems.push({"attributeName":name,"attributeValue":[value]});
+        }
+    }
+
+    //构件sku列表
+    $scope.createItemList=function () {
+        /**
+         * 初始化一个sku列表
+         * spec:{"网络":"3G,"内存":2G}
+         * spec:{"网络":"3G,"内存":4G}
+         */
+        $scope.entity.itemList=[{spec:{},price:0,num:9999,statu:0,isDefault:0}];
+
+        //{{entity.goodsDesc.specificationItems}}
+        var items = $scope.entity.goodsDesc.specificationItems;
+
+        for (var i = 0; i < items.length; i++) {
+            //深克隆,$scope.entity.itemList已经不是原来那个对象了
+            $scope.entity.itemList = addColumn($scope.entity.itemList,items[i].attributeName,items[i].attributeValue);
+
+
+
+        }
+    }
+    //不写$scope,代表此controller内部访问, 相当于私有化方法
+    /**
+     *
+     * @param list : [
+     *          {spec:{"网络":"3G,"内存":2G},price:0,num:9999,statu:0,isDefault:0},
+     *          {spec:{"网络":"3G,"内存":4G},price:0,num:9999,statu:0,isDefault:0}
+     *      ]
+     * @param columnName : 网络
+     * @param conlumnValues : ["移动4G","联通3G"]
+     */
+    addColumn=function (list,columnName,conlumnValues) {
+        var newList = [];
+        for (var i = 0; i < list.length; i++) {
+            var oldRow = list[i];
+
+            for (var j = 0; j < conlumnValues.length; j++) {
+                var newRow = JSON.parse(JSON.stringify(oldRow));//深克隆
+                newRow.spec[columnName]=conlumnValues[j];
+                newList.push(newRow);
+            }
+        }
+        return newList;
+    }
+});
