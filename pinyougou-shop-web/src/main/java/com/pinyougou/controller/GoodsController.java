@@ -6,6 +6,7 @@ import com.pinyougou.sellergoods.service.GoodsService;
 import entity.Goods;
 import entity.PageResult;
 import entity.Result;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -66,9 +67,20 @@ public class GoodsController {
 	 * @return
 	 */
 	@RequestMapping("/update")
-	public Result update(@RequestBody TbGoods goods){
+	public Result update(@RequestBody Goods goods){
 		try {
-			goodsService.update(goods);
+		    //检查更新的商品 是否 属于当前商家
+            String curShopId = SecurityContextHolder.getContext().getAuthentication().getName();
+            Goods goods1 = findOne(goods.getGoods().getId());
+
+            //情况一 : 更新的商品在数据库中不属于他
+            //情况二 : 更新的商品从前台传过来的卖家不是他
+            if(!curShopId.equals(goods1.getGoods().getSellerId()) || !curShopId.equals(goods.getGoods().getSellerId()) ){
+                return new Result(false,"操作非法");
+            }
+
+
+            goodsService.update(goods);
 			return new Result(true, "修改成功");
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -82,7 +94,7 @@ public class GoodsController {
 	 * @return
 	 */
 	@RequestMapping("/findOne")
-	public TbGoods findOne(Long id){
+	public Goods findOne(Long id){
 		return goodsService.findOne(id);		
 	}
 	
@@ -104,13 +116,17 @@ public class GoodsController {
 	
 		/**
 	 * 查询+分页
-	 * @param brand
 	 * @param page
 	 * @param rows
 	 * @return
 	 */
 	@RequestMapping("/search")
 	public PageResult search(@RequestBody TbGoods goods, int page, int rows  ){
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		String name = authentication.getName();
+
+		//只查询当前商家的商品
+		goods.setSellerId(name);
 		return goodsService.findPage(goods, page, rows);		
 	}
 

@@ -1,5 +1,7 @@
 package com.pinyougou.sellergoods.service.impl;
 import java.util.List;
+
+import entity.PageResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.github.pagehelper.Page;
@@ -10,7 +12,6 @@ import com.pinyougou.pojo.TbFreightTemplateExample;
 import com.pinyougou.pojo.TbFreightTemplateExample.Criteria;
 import com.pinyougou.sellergoods.service.FreightTemplateService;
 
-import entity.PageResult;
 
 /**
  * 服务实现层
@@ -87,7 +88,19 @@ public class FreightTemplateServiceImpl implements FreightTemplateService {
 		Criteria criteria = example.createCriteria();
 		
 		if(freightTemplate!=null){			
-				
+						if(freightTemplate.getSellerId()!=null && freightTemplate.getSellerId().length()>0){
+				criteria.andSellerIdLike("%"+freightTemplate.getSellerId()+"%");
+			}
+			if(freightTemplate.getIsDefault()!=null && freightTemplate.getIsDefault().length()>0){
+				criteria.andIsDefaultLike("%"+freightTemplate.getIsDefault()+"%");
+			}
+			if(freightTemplate.getName()!=null && freightTemplate.getName().length()>0){
+				criteria.andNameLike("%"+freightTemplate.getName()+"%");
+			}
+			if(freightTemplate.getSendTimeType()!=null && freightTemplate.getSendTimeType().length()>0){
+				criteria.andSendTimeTypeLike("%"+freightTemplate.getSendTimeType()+"%");
+			}
+	
 		}
 		
 		Page<TbFreightTemplate> page= (Page<TbFreightTemplate>)freightTemplateMapper.selectByExample(example);		

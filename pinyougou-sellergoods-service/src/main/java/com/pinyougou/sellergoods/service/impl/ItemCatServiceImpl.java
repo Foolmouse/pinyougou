@@ -1,8 +1,5 @@
 package com.pinyougou.sellergoods.service.impl;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -11,8 +8,10 @@ import com.pinyougou.pojo.TbItemCat;
 import com.pinyougou.pojo.TbItemCatExample;
 import com.pinyougou.pojo.TbItemCatExample.Criteria;
 import com.pinyougou.sellergoods.service.ItemCatService;
-
 import entity.PageResult;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
 
 /**
  * 服务实现层
@@ -71,16 +70,28 @@ public class ItemCatServiceImpl implements ItemCatService {
         return itemCatMapper.selectByPrimaryKey(id);
     }
 
-
     /**
      * 批量删除
      */
     @Override
     public void delete(Long[] ids) {
         for (Long id : ids) {
+            List<TbItemCat> tbItemCats2 = findByParentId(id);
+            if (tbItemCats2 != null) {
+                for (TbItemCat tbItemCat2 : tbItemCats2) {
+                    List<TbItemCat> tbItemCats3 = findByParentId(tbItemCat2.getId());
+                    if (tbItemCats3 != null) {
+                        for (TbItemCat tbItemCat3 : tbItemCats3) {
+                            itemCatMapper.deleteByPrimaryKey(tbItemCat3.getId());
+                        }
+                    }
+                    itemCatMapper.deleteByPrimaryKey(tbItemCat2.getId());
+                }
+            }
             itemCatMapper.deleteByPrimaryKey(id);
         }
     }
+
 
     @Override
     public PageResult findPage(TbItemCat itemCat, int pageNum, int pageSize) {
@@ -90,6 +101,9 @@ public class ItemCatServiceImpl implements ItemCatService {
         Criteria criteria = example.createCriteria();
 
         if (itemCat != null) {
+            if (itemCat.getName() != null && itemCat.getName().length() > 0) {
+                criteria.andNameLike("%" + itemCat.getName() + "%");
+            }
 
         }
 
@@ -97,14 +111,17 @@ public class ItemCatServiceImpl implements ItemCatService {
         return new PageResult(page.getTotal(), page.getResult());
     }
 
-
+    /**
+     * 根据上级ID查询列表
+     */
     @Override
     public List<TbItemCat> findByParentId(Long parentId) {
-        TbItemCatExample example = new TbItemCatExample();
-        Criteria criteria = example.createCriteria();
-        criteria.andParentIdEqualTo(parentId);
-        List<TbItemCat> list = itemCatMapper.selectByExample(example);
-        return list;
+        TbItemCatExample example1 = new TbItemCatExample();
+        Criteria criteria1 = example1.createCriteria();
+        criteria1.andParentIdEqualTo(parentId);
+        return itemCatMapper.selectByExample(example1);
+
     }
+
 
 }

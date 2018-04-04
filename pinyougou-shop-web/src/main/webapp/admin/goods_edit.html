@@ -45,7 +45,7 @@
 </head>
 
 <body class="hold-transition skin-red sidebar-mini" ng-app="pinyougou"
-      ng-controller="goodsController" ng-init="selectItemCat1List()">
+      ng-controller="goodsController" ng-init="selectItemCat1List();findOne()">
 
 <!-- 正文区域 -->
 <section class="content">
@@ -118,10 +118,10 @@
 
                         <div class="col-md-2 title">品牌</div>
                         <div class="col-md-10 data">
-                            ` <select class="form-control"
-                                      ng-model="entity.goods.brandId"
-                                      ng-options="brand.id as brand.text for brand in typeTemplate.brandIds"
-                        ></select>
+                            <select class="form-control"
+                                    ng-model="entity.goods.brandId"
+                                    ng-options="brand.id as brand.text for brand in typeTemplate.brandIds"
+                            ></select>
                         </div>
 
                         <div class="col-md-2 title">副标题</div>
@@ -230,26 +230,27 @@
                     </div>
                     <p>
 
-                    <div>
+                    <div ng-if="entity.goods.isEnableSpec==1">
 
                         <div class="row data-type">
 
                             <div ng-repeat="pojo in specList">
                                 <div class="col-md-2 title">{{pojo.text}}</div>
                                 <div class="col-md-10 data">
-                                    <span ng-repeat="op in pojo.option">
-                                        <input type="checkbox"
-                                               ng-click="updateSpecAttribute($event,pojo.text,op.optionName);createItemList()">
-                                        {{op.optionName}}
 
+                                    <span ng-repeat="option in pojo.options">
+                                        <input type="checkbox"
+                                               ng-checked="checkAttributeValue(pojo.text,option.optionName)"
+                                               ng-click="updateSpecAttribute($event,pojo.text,option.optionName);createItemList()">{{option.optionName}}
                                     </span>
+
                                 </div>
                             </div>
                         </div>
 
                         <!--{{entity.itemList}}-->
                         <!--选择启用规格才显示sku列表-->
-                        <div class="row data-type" ng-if="entity.goods.isEnableSpec==1">
+                        <div class="row data-type">
                             <table class="table table-bordered table-striped table-hover dataTable">
                                 <thead>
                                 <tr>
@@ -299,8 +300,8 @@
 
     </div>
     <div class="btn-toolbar list-toolbar">
-        <button class="btn btn-primary" ng-click="setEditorValue();add()"><i class="fa fa-save"></i>保存</button>
-        <button class="btn btn-default" ng-click="goListPage()">返回列表</button>
+        <button class="btn btn-primary" ng-click="save()"><i class="fa fa-save"></i>保存</button>
+        <a href="goods.html" class="btn btn-default">返回列表</a>
     </div>
 
 </section>

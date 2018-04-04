@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans:beans xmlns="http://www.springframework.org/schema/security"
-        xmlns:beans="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
-
+             xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+             xmlns:beans="http://www.springframework.org/schema/beans"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://www.springframework.org/schema/beans
+             http://www.springframework.org/schema/beans/spring-beans.xsd
+             http://code.alibabatech.com/schema/dubbo
+            http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+            http://www.springframework.org/schema/security
+            http://www.springframework.org/schema/security/spring-security.xsd">
 <!-- 以下页面不被拦截 -->
 <!-- 页面拦截规则 -->
 <!--
@@ -49,9 +54,15 @@ use-expressions为是否使用使用 Spring 表达式语言（SpEL），默认�
     <authentication-manager>
         <authentication-provider>
             <user-service>
-                <user name="admin" password="123123" authorities="ROLE_ADMIN" />
-            </user-service>
+            <user name="admin" password="123123" authorities="ROLE_ADMIN" />
+        </user-service>
         </authentication-provider>
     </authentication-manager>
+
+
+
+
+
+
 
 </beans:beans>

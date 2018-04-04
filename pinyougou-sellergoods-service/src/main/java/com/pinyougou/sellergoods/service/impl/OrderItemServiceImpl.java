@@ -1,5 +1,7 @@
 package com.pinyougou.sellergoods.service.impl;
 import java.util.List;
+
+import entity.PageResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.github.pagehelper.Page;
@@ -10,7 +12,6 @@ import com.pinyougou.pojo.TbOrderItemExample;
 import com.pinyougou.pojo.TbOrderItemExample.Criteria;
 import com.pinyougou.sellergoods.service.OrderItemService;
 
-import entity.PageResult;
 
 /**
  * 服务实现层
@@ -87,7 +88,16 @@ public class OrderItemServiceImpl implements OrderItemService {
 		Criteria criteria = example.createCriteria();
 		
 		if(orderItem!=null){			
-				
+						if(orderItem.getTitle()!=null && orderItem.getTitle().length()>0){
+				criteria.andTitleLike("%"+orderItem.getTitle()+"%");
+			}
+			if(orderItem.getPicPath()!=null && orderItem.getPicPath().length()>0){
+				criteria.andPicPathLike("%"+orderItem.getPicPath()+"%");
+			}
+			if(orderItem.getSellerId()!=null && orderItem.getSellerId().length()>0){
+				criteria.andSellerIdLike("%"+orderItem.getSellerId()+"%");
+			}
+	
 		}
 		
 		Page<TbOrderItem> page= (Page<TbOrderItem>)orderItemMapper.selectByExample(example);		

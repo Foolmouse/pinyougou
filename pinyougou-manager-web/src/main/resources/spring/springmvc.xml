@@ -19,6 +19,7 @@
     <!--引用服务 通过注解 @reference 扫描 即可引用 包含了组件扫描-->
     <dubbo:annotation package="com.pinyougou.manager.controller"></dubbo:annotation>
 
+    <context:property-placeholder location="classpath:*.properties"></context:property-placeholder>
     <!--<context:component-scan base-package="com.pinyougou.manager.controller"></context:component-scan>-->
     <!--注解驱动并设置统一日期的输出格式-->
     <mvc:annotation-driven>
@@ -37,4 +38,15 @@
             </bean>
         </mvc:message-converters>
     </mvc:annotation-driven>
+
+
+    <bean id="multipartResolver"
+          class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <property name="defaultEncoding" value="UTF-8"></property>
+        <!-- 设定文件上传的最大值 5MB，5*1024*1024 -->
+        <property name="maxUploadSize" value="5242880"></property>
+    </bean>
+    <context:property-placeholder location="classpath:config/*.properties"></context:property-placeholder>
+
+
 </beans>

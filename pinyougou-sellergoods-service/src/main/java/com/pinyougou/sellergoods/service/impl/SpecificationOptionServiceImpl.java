@@ -1,5 +1,7 @@
 package com.pinyougou.sellergoods.service.impl;
 import java.util.List;
+
+import entity.PageResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.github.pagehelper.Page;
@@ -10,7 +12,6 @@ import com.pinyougou.pojo.TbSpecificationOptionExample;
 import com.pinyougou.pojo.TbSpecificationOptionExample.Criteria;
 import com.pinyougou.sellergoods.service.SpecificationOptionService;
 
-import entity.PageResult;
 
 /**
  * 服务实现层
@@ -87,7 +88,10 @@ public class SpecificationOptionServiceImpl implements SpecificationOptionServic
 		Criteria criteria = example.createCriteria();
 		
 		if(specificationOption!=null){			
-				
+						if(specificationOption.getOptionName()!=null && specificationOption.getOptionName().length()>0){
+				criteria.andOptionNameLike("%"+specificationOption.getOptionName()+"%");
+			}
+	
 		}
 		
 		Page<TbSpecificationOption> page= (Page<TbSpecificationOption>)specificationOptionMapper.selectByExample(example);		
