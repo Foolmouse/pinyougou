@@ -1,17 +1,34 @@
 package com.pinyougou.pojo;
 
+import org.apache.solr.client.solrj.beans.Field;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.data.solr.core.mapping.Dynamic;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.Map;
 
 public class TbItem implements Serializable {
+
+    @Field
     private Long id;
 
+    @Field("item_title")
     private String title;
 
     private String sellPoint;
 
+    @Field("item_price")
     private BigDecimal price;
+
+    public Map<String, String> getSpecMap() {
+        return specMap;
+    }
+
+    public void setSpecMap(Map<String, String> specMap) {
+        this.specMap = specMap;
+    }
 
     private Integer stockCount;
 
@@ -19,6 +36,7 @@ public class TbItem implements Serializable {
 
     private String barcode;
 
+    @Field("item_image")
     private String image;
 
     private Long categoryid;
@@ -37,19 +55,27 @@ public class TbItem implements Serializable {
 
     private String isDefault;
 
+    @Field("item_goodsid")
     private Long goodsId;
 
     private String sellerId;
 
     private String cartThumbnail;
 
+    @Field("item_category")
     private String category;
 
+    @Field("item_brand")
     private String brand;
 
     private String spec;
 
+    @Field("item_seller")
     private String seller;
+
+    @Dynamic
+    @Field("item_spec_*")//将map中的key拼接成：item_spec_机身内存   map中的value：item_spec_机身内存:16G
+    private Map<String,String> specMap;
 
     private static final long serialVersionUID = 1L;
 
@@ -236,4 +262,6 @@ public class TbItem implements Serializable {
     public void setSeller(String seller) {
         this.seller = seller == null ? null : seller.trim();
     }
+
+
 }
