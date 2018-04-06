@@ -10,6 +10,7 @@ import com.pinyougou.pojo.TbItemCatExample.Criteria;
 import com.pinyougou.sellergoods.service.ItemCatService;
 import entity.PageResult;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 
 import java.util.List;
 
@@ -23,6 +24,9 @@ public class ItemCatServiceImpl implements ItemCatService {
 
     @Autowired
     private TbItemCatMapper itemCatMapper;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     /**
      * 查询全部
@@ -119,8 +123,18 @@ public class ItemCatServiceImpl implements ItemCatService {
         TbItemCatExample example1 = new TbItemCatExample();
         Criteria criteria1 = example1.createCriteria();
         criteria1.andParentIdEqualTo(parentId);
-        return itemCatMapper.selectByExample(example1);
+        List<TbItemCat> list = itemCatMapper.selectByExample(example1);
 
+        /**
+         * redis老板了解一下
+         */
+        for (TbItemCat tbItemCat : list) {
+            //为什么key是name , value是模板id
+            //因为sku查询出来种类 , 根据种类得到模板id , 再得到品牌和规格
+            redisTemplate.boundHashOps("itemCategory").put(tbItemCat.getName(),tbItemCat.getTypeId());
+        }
+        System.out.println("更新缓存:商品分类表");
+        return list;
     }
 
 
