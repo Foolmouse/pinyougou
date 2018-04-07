@@ -3,12 +3,15 @@ package com.pinyougou.search.service.impl;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.pinyougou.pojo.TbItem;
 import com.pinyougou.search.service.ItemSearchService;
+import com.sun.javafx.font.PrismFontFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.data.solr.core.query.*;
 import org.springframework.data.solr.core.query.result.*;
+import org.springframework.jca.work.SimpleTaskWorkManager;
 
 import javax.swing.text.AbstractDocument;
 import java.util.*;
@@ -80,7 +83,7 @@ public class ItemSearchServiceImpl implements ItemSearchService {
     }
 
     //查询高亮
-    public Map<String,Object> searchList(Map searchMap){
+    private Map<String,Object> searchList(Map searchMap){
         SimpleHighlightQuery query = new SimpleHighlightQuery();
         //设置高亮域 和前后缀
         HighlightOptions highlightOptions = new HighlightOptions();
@@ -90,6 +93,10 @@ public class ItemSearchServiceImpl implements ItemSearchService {
         query.setHighlightOptions(highlightOptions);
 
         //1.1 关键字搜索条件
+        //如果前端传的是"手机 32G" 我们需要对其进行空格处理,变成数组
+        String keywords = (String) searchMap.get("keywords");
+        searchMap.put("item_keywords",keywords.replace(" ",""));
+
         Criteria criteria = new Criteria("item_keywords").is(searchMap.get("keywords"));
         query.addCriteria(criteria);
 
@@ -122,8 +129,52 @@ public class ItemSearchServiceImpl implements ItemSearchService {
 
         }
 
+        //1.5 按价格搜索
+        if(!searchMap.get("price").equals("")){
+            String[] prices = ((String) searchMap.get("price")).split("-");
 
-        //搜索
+            if(!prices[0].equals("0")){
+                Criteria priceCriteria = new Criteria("item_price").greaterThanEqual(prices[0]);
+                FilterQuery priceQuery = new SimpleFilterQuery().addCriteria(priceCriteria);
+                query.addFilterQuery(priceQuery);
+            }
+            if(!prices[1].equals("*")){
+                Criteria priceCriteria = new Criteria("item_price").lessThanEqual(prices[1]);
+                FilterQuery priceQuery = new SimpleFilterQuery().addCriteria(priceCriteria);
+                query.addFilterQuery(priceQuery);
+            }
+
+        }
+
+        //1.6 分页查询
+        //如果设置了分页查询,只对第一次查询起作用
+        Integer pageNo= (Integer) searchMap.get("pageNo");//提取页码
+        if(pageNo==null){
+            pageNo=1;//默认第一页
+        }
+        Integer pageSize=(Integer) searchMap.get("pageSize");//每页记录数
+        if(pageSize==null){
+            pageSize=20;//默认20
+        }
+        query.setOffset((pageNo-1)*pageSize);
+        query.setRows(pageSize);
+
+        //1.7 价格排序 sort sortField
+        String sort = (String) searchMap.get("sort");
+        String sortField = (String) searchMap.get("sortField");
+        Sort orders = null;
+        if(sort != null && !sort.equals("")) {
+            //判断是升序还是降序
+            //选择排序字段
+            if(sort.toLowerCase().equals("asc")){
+                orders = new Sort(Sort.Direction.ASC, "item_" + sortField);
+            }if(sort.toLowerCase().equals("desc")){
+                orders = new Sort(Sort.Direction.DESC, "item_" + sortField);
+            }
+        }
+        query.addSort(orders);
+
+        //执行搜索
         HighlightPage<TbItem> page = solrTemplate.queryForHighlightPage(query, TbItem.class);
         //得到高亮结果集
         List<HighlightEntry<TbItem>> highlightEntryList = page.getHighlighted();
@@ -138,7 +189,9 @@ public class ItemSearchServiceImpl implements ItemSearchService {
         }
 
         Map<String, Object> map = new HashMap<>();
-        map.put("rows",page.getContent());
+        map.put("rows",page.getContent());  //每页内容
+        map.put("totalPages",page.getTotalPages()); //总页数
+        map.put("total",page.getTotalElements());   //总条数
         return map;
     }
 
