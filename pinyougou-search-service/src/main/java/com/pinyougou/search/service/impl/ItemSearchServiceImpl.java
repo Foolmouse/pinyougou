@@ -1,7 +1,9 @@
 package com.pinyougou.search.service.impl;
 
 import com.alibaba.dubbo.config.annotation.Service;
+import com.pinyougou.mapper.TbItemMapper;
 import com.pinyougou.pojo.TbItem;
+import com.pinyougou.pojo.TbItemExample;
 import com.pinyougou.search.service.ItemSearchService;
 import com.sun.javafx.font.PrismFontFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,8 @@ public class ItemSearchServiceImpl implements ItemSearchService {
     @Autowired
     private RedisTemplate redisTemplate;
 
+    @Autowired
+    private TbItemMapper itemMapper;
 
 
     /**
@@ -80,6 +84,17 @@ public class ItemSearchServiceImpl implements ItemSearchService {
         }
         map.putAll(brandAndSpecMap);
         return map;
+    }
+
+    //删除商品的同时,删除索引
+    @Override
+    public void deleteByGoodsIds(List goodsIdList) {
+        SimpleQuery query = new SimpleQuery();
+        Criteria criteria = new Criteria("item_goodsid").is(goodsIdList);
+        query.addCriteria(criteria);
+
+        solrTemplate.delete(query);
+        solrTemplate.commit();
     }
 
     //查询高亮
@@ -245,7 +260,23 @@ public class ItemSearchServiceImpl implements ItemSearchService {
     }
 
 
+    @Override
+    public List<TbItem> findItemListByGoodsIdandStatus(Long[] goodsIds, String status) {
+        TbItemExample itemExample = new TbItemExample();
+        TbItemExample.Criteria criteria = itemExample.createCriteria();
+        criteria.andGoodsIdIn(Arrays.asList(goodsIds));
+        criteria.andStatusEqualTo(status);
+        List<TbItem> itemList = itemMapper.selectByExample(itemExample);
 
+
+        return itemList;
+    }
+
+    @Override
+    public void importList(List list) {
+        solrTemplate.saveBeans(list);
+        solrTemplate.commit();
+    }
 
 
 

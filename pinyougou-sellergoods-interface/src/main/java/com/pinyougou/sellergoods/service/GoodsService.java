@@ -2,6 +2,7 @@ package com.pinyougou.sellergoods.service;
 import java.util.List;
 import com.pinyougou.pojo.TbGoods;
 
+import com.pinyougou.pojo.TbItem;
 import entity.Goods;
 import entity.PageResult;
 /**
@@ -73,4 +74,7 @@ public interface GoodsService {
 	 * @param status
 	 */
 	public void updateStatus(Long []ids,String status);
+
+
+
 }

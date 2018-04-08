@@ -1,10 +1,8 @@
 package com.pinyougou.sellergoods.service.impl;
 
+import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import com.alibaba.druid.sql.ast.expr.SQLCaseExpr;
 import com.alibaba.fastjson.JSON;
@@ -22,6 +20,7 @@ import com.pinyougou.pojo.TbGoodsExample.Criteria;
 import com.pinyougou.sellergoods.service.GoodsService;
 
 import entity.PageResult;
+import org.springframework.data.solr.core.SolrTemplate;
 
 /**
  * 服务实现层
@@ -43,6 +42,8 @@ public class GoodsServiceImpl implements GoodsService {
     private TbSellerMapper sellerMapper;
     @Autowired
     private TbItemMapper itemMapper;
+
+
 
     /**
      * 查询全部
@@ -237,12 +238,16 @@ public class GoodsServiceImpl implements GoodsService {
     //批量修改状态
     @Override
     public void updateStatus(Long[] ids, String status) {
+        //更新商品状态
         for (Long id : ids) {
             TbGoods goods = goodsMapper.selectByPrimaryKey(id);
             goods.setAuditStatus(status);
             goodsMapper.updateByPrimaryKey(goods);
         }
+
     }
+
+
 
     /**
      * 抽取新增和更新商品时的通用代码
@@ -305,9 +310,10 @@ public class GoodsServiceImpl implements GoodsService {
         if (imageList.size() > 0) {
             item.setImage((String) imageList.get(0).get("url"));
         }
-
-
     }
+
+
+
 
 
 }
