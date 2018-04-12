@@ -1,8 +1,10 @@
 package com.pinyougou.sellergoods.service;
+import java.util.Arrays;
 import java.util.List;
 import com.pinyougou.pojo.TbGoods;
 
 import com.pinyougou.pojo.TbItem;
+import com.pinyougou.pojo.TbItemExample;
 import entity.Goods;
 import entity.PageResult;
 /**
@@ -76,5 +78,6 @@ public interface GoodsService {
 	public void updateStatus(Long []ids,String status);
 
 
+	public List<TbItem> findItemListByGoodsIdandStatus(Long[] goodsIds, String status);
 
 }

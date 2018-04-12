@@ -260,7 +260,7 @@ public class ItemSearchServiceImpl implements ItemSearchService {
     }
 
 
-    @Override
+/*    @Override
     public List<TbItem> findItemListByGoodsIdandStatus(Long[] goodsIds, String status) {
         TbItemExample itemExample = new TbItemExample();
         TbItemExample.Criteria criteria = itemExample.createCriteria();
@@ -268,9 +268,8 @@ public class ItemSearchServiceImpl implements ItemSearchService {
         criteria.andStatusEqualTo(status);
         List<TbItem> itemList = itemMapper.selectByExample(itemExample);
 
-
         return itemList;
-    }
+    }*/
 
     @Override
     public void importList(List list) {

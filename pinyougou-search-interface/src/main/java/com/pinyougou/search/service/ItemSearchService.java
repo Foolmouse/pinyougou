@@ -28,7 +28,7 @@ public interface ItemSearchService  {
      * @param status   spu的状态
      * @return
      */
-    public List<TbItem> findItemListByGoodsIdandStatus(Long[] goodsIds, String status );
+    //public List<TbItem> findItemListByGoodsIdandStatus(Long[] goodsIds, String status );
 
     /**
      * 导入数据

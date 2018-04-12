@@ -313,6 +313,16 @@ public class GoodsServiceImpl implements GoodsService {
     }
 
 
+    @Override
+    public List<TbItem> findItemListByGoodsIdandStatus(Long[] goodsIds, String status) {
+        TbItemExample itemExample = new TbItemExample();
+        TbItemExample.Criteria criteria = itemExample.createCriteria();
+        criteria.andGoodsIdIn(Arrays.asList(goodsIds));
+        criteria.andStatusEqualTo(status);
+        List<TbItem> itemList = itemMapper.selectByExample(itemExample);
+
+        return itemList;
+    }
 
 
 
